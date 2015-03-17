@@ -138,6 +138,7 @@ class GraphFrame(wx.Frame):
 
         self.init_plot()
         self.canvas = FigCanvas(self.panel, -1, self.fig)
+        self.canvas2 = FigCanvas(self.panel, -1, self.fig)
 
         self.xmin_control = BoundControlBox(self.panel, -1, "X min", 0)
         self.xmax_control = BoundControlBox(self.panel, -1, "X max", 50)
@@ -192,6 +193,10 @@ class GraphFrame(wx.Frame):
         self.axes = self.fig.add_subplot(111)
         self.axes.set_axis_bgcolor('black')
         self.axes.set_title('Very important random data', size=12)
+
+        # self.axes2 = self.fig.add_subplot(2,2,1)
+        # self.axes2.set_axis_bgcolor('black')
+        # self.axes.set_title("volume")
 
         pylab.setp(self.axes.get_xticklabels(), fontsize=8)
         pylab.setp(self.axes.get_yticklabels(), fontsize=8)
@@ -263,6 +268,7 @@ class GraphFrame(wx.Frame):
         self.plot_data.set_ydata(np.array(self.data))
 
         self.canvas.draw()
+        self.canvas2.draw();
 
     def on_pause_button(self, event):
         self.paused = not self.paused
@@ -296,7 +302,6 @@ class GraphFrame(wx.Frame):
     def on_redraw_timer(self, event):
         # if paused do not add data, but still redraw the plot
         # (to respond to scale modifications, grid change, etc.)
-
         if not self.paused:
             self.data.append(self.datagen.next())
 
@@ -319,7 +324,7 @@ class GraphFrame(wx.Frame):
 
 
 if __name__ == '__main__':
-    win32api.MessageBox(0, 'hello', 'title')
+    #win32api.MessageBox(0, 'hello', 'title')
     app = wx.PySimpleApp()
     app.frame = GraphFrame()
     app.frame.Show()

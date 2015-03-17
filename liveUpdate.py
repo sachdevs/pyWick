@@ -16,9 +16,6 @@ import random
 import sys
 import wx
 
-# The recommended way to use wx with mpl is with the WXAgg
-# backend.
-#
 import matplotlib
 matplotlib.use('WXAgg')
 from matplotlib.figure import Figure
@@ -27,6 +24,7 @@ from matplotlib.backends.backend_wxagg import \
     NavigationToolbar2WxAgg as NavigationToolbar
 import numpy as np
 import pylab
+import win32api
 
 
 class DataGen(object):
@@ -298,7 +296,7 @@ class GraphFrame(wx.Frame):
     def on_redraw_timer(self, event):
         # if paused do not add data, but still redraw the plot
         # (to respond to scale modifications, grid change, etc.)
-        #
+
         if not self.paused:
             self.data.append(self.datagen.next())
 
@@ -321,6 +319,7 @@ class GraphFrame(wx.Frame):
 
 
 if __name__ == '__main__':
+    win32api.MessageBox(0, 'hello', 'title')
     app = wx.PySimpleApp()
     app.frame = GraphFrame()
     app.frame.Show()

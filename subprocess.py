@@ -7,7 +7,7 @@ class MyFrame(wx.Frame):
     """make a frame, inherits wx.Frame"""
     def __init__(self):
         # create a frame, no parent, default to wxID_ANY
-        wx.Frame.__init__(self, None, wx.ID_ANY, 'Niggua',
+        wx.Frame.__init__(self, None, wx.ID_ANY, 'LDSKFJ',
             pos=(300, 150), size=(320, 250))
         self.SetBackgroundColour("black")
         

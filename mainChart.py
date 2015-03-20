@@ -40,6 +40,12 @@ def pullData(stock, m, d, y):
 		print 'main loop', str(e)
 
 ##################################################################
+#                         Scraper Call
+##################################################################
+# for stock in stocksToPull:
+# 	pullData(stock, 3, 18, 2014)
+
+##################################################################
 #                 RSI calculator (using numpy)
 ##################################################################
 def rsiCalc(prices, n=14):
@@ -68,9 +74,6 @@ def rsiCalc(prices, n=14):
 
 	return rsi
 
-
-
-
 ##################################################################
 #                 SMA calculator (using numpy)
 ##################################################################
@@ -80,6 +83,27 @@ def simpleMovingAvg(values, window):
 	# smoother (convolve smooths)
 	smas = np.convolve(values, weights, 'valid')
 	return smas
+
+##################################################################
+#                 EMA calculator (using numpy)
+##################################################################
+def ema(values, window):
+	weights = np.exp(np.linspace(-1.,0.,window))
+	weights /= weights.sum()
+	a = np.convolve(values, weights, mode='full')[:len(values)]
+	a[:window] = a[window]
+	return a
+	
+
+##################################################################
+#                 MACD calculator (using numpy)
+##################################################################
+def macdCalc(x, slow=26, fast=12):
+	'''
+	macd line = 12ema - 26 ema
+	signal = 9ema
+	histogram = macd
+	'''
 
 ##################################################################
 #       Grapher, params (Name of stock, SMA1 day, SMA2 day)
@@ -103,7 +127,7 @@ def graphData(stock, SMA1, SMA2):
 
 		# simplemovingavg
 		av1 = simpleMovingAvg(closep, SMA1)
-		av2 = simpleMovingAvg(closep, SMA2)
+		av2 = simpleMovingAvg(closep, SMA1)
 
 		# starting point of sma (since the x day moving average cannot start until x days have first been completed)
 		#TODO ###### NEED TO MAKE DYNAMIC ################
@@ -189,7 +213,7 @@ def graphData(stock, SMA1, SMA2):
 
 		ax1v = ax1.twinx()
 		ax1v.plot(date[:startingPoint], volume[:startingPoint], '#00ffe8', linewidth=.8)
-		ax1v.fill_between(date, 0, volume, facecolor='#00ffe8', alpha=.5)
+		ax1v.fill_between(date[:startingPoint], 0, volume[:startingPoint], facecolor='#00ffe8', alpha=.5)
 
 		# Mostly styling
 		ax1v.axes.yaxis.set_ticklabels([])

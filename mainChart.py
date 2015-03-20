@@ -102,8 +102,11 @@ def macdCalc(x, slow=26, fast=12):
 	'''
 	macd line = 12ema - 26 ema
 	signal = 9ema
-	histogram = macd
+	histogram = macd - signal
 	'''
+	emaslow = ema(x, slow)
+	emafast = ema(x, fast)
+	return emaslow, emafast, emafast-emaslow
 
 ##################################################################
 #       Grapher, params (Name of stock, SMA1 day, SMA2 day)
@@ -127,7 +130,7 @@ def graphData(stock, SMA1, SMA2):
 
 		# simplemovingavg
 		av1 = simpleMovingAvg(closep, SMA1)
-		av2 = simpleMovingAvg(closep, SMA1)
+		av2 = simpleMovingAvg(closep, SMA2)
 
 		# starting point of sma (since the x day moving average cannot start until x days have first been completed)
 		#TODO ###### NEED TO MAKE DYNAMIC ################
@@ -140,11 +143,12 @@ def graphData(stock, SMA1, SMA2):
 		fig = plt.figure(facecolor='#07000d')
 
 		#--------RSI GRAPH--------
-		ax0 = plt.subplot2grid((5,4), (0,0), rowspan=1, colspan=4, axisbg='#07000d')
+		ax0 = plt.subplot2grid((6,4), (0,0), rowspan=1, colspan=4, axisbg='#07000d')
 		ax0.spines['bottom'].set_color('#5998ff')
 		ax0.spines['left'].set_color('#5998ff')
 		ax0.spines['top'].set_color('#5998ff')
 		ax0.spines['right'].set_color('#5998ff')
+		ax0.grid(True, color='w')
 		ax0.set_ylim(0, 100)
 		ax0.yaxis.set_major_locator(mticker.MaxNLocator(3))
 		plt.gca().yaxis.set_major_locator(mticker.MaxNLocator(3,prune='lower'))
@@ -160,7 +164,7 @@ def graphData(stock, SMA1, SMA2):
 			label.set_color("w")
 
 		# -------PRICE GRAPH--------
-		ax1 = plt.subplot2grid((5,4), (1,0), sharex=ax0, rowspan=3, colspan=4, axisbg='#07000d')
+		ax1 = plt.subplot2grid((6,4), (1,0), sharex=ax0, rowspan=3, colspan=4, axisbg='#07000d')
 
 		# Candlestick plot details
 		candlestick(ax1, candleArr[:startingPoint], width=1, colorup='#9eff15', colordown='#ff1717')
@@ -239,6 +243,48 @@ def graphData(stock, SMA1, SMA2):
 		# 	label.set_rotation(75)
 		# 	label.set_color("w")
 		################################################################
+
+
+		# -------MACD GRAPH--------
+		ax2 = plt.subplot2grid((6,4), (4,0), sharex=ax0, rowspan=1, colspan=4, axisbg='#07000d')
+
+		# actual plotting
+		# nema is the ema that macd is compared to (for crossovers)
+		nema = 9
+
+		emaslow, emafast, macd = macdCalc(closep)
+		ema9 = ema(macd, nema)
+		ax2.plot(date[:startingPoint], macd[:startingPoint], '#5998ff', label= 'MACD', linewidth=1.2)
+		ax2.plot(date[:startingPoint], ema9[:startingPoint], '#ffffff', label= '9 day ema', linewidth=1.2)
+		ax2.fill_between(date[:startingPoint], macd[:startingPoint]-ema9[:startingPoint], 0, alpha = 0.5, facecolor='#00ffe8', edgecolor='#00ffe8')
+
+		plt.gca().yaxis.set_major_locator(mticker.MaxNLocator(3, prune='upper'))
+
+		# # Styling and bookeeping
+		# MAKES TICKS INVISIBLE: ax2.axes.yaxis.set_ticklabels([])
+		ax2.grid(True, color='w')
+		ax2.yaxis.label.set_color('w')
+		ax2.xaxis.label.set_color('w')
+		ax2.spines['bottom'].set_color('#5998ff')
+		ax2.spines['left'].set_color('#5998ff')
+		ax2.spines['top'].set_color('#5998ff')
+		ax2.spines['right'].set_color('#5998ff')
+		ax2.tick_params(axis='y', colors='w')
+		plt.ylabel('MACD')
+
+		ax2.xaxis.set_major_locator(mticker.MaxNLocator(8))
+		ax2.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+
+		# Rotate xaxis labels on volume graph and delete xaxis labels on price graph
+		for label in ax1.xaxis.get_ticklabels():
+			label.set_visible(False)
+		for label in ax2.xaxis.get_ticklabels():
+			label.set_rotation(75)
+			label.set_color('w')
+		for label in ax2.yaxis.get_ticklabels():
+			label.set_color('w')
+
+
 
 		plt.subplots_adjust(left=0.08, bottom=.07, right=0.95, top=0.93, wspace=.20, hspace=0.00)
 

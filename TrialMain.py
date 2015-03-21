@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 import matplotlib.dates as mdates
 from matplotlib.finance import candlestick
+import matplotlib.animation as animation
 import socket
 import sys
     
@@ -47,6 +48,12 @@ def subscribe(user, password):
     finally:
         sock.close()
 
+
+
+
+
+
+
 plt.rcParams.update({'font.size': 11})
 
 stocksToPull = 'AAPL','GOOG','MSFT','CMG','TSLA','FB'
@@ -54,61 +61,30 @@ stocksToPull = 'AAPL','GOOG','MSFT','CMG','TSLA','FB'
 ##################################################################
 #        Scrapes historical data from Yahoo Finance API
 ##################################################################
-def pullData(stock):
-    try:
-        fileLine = run("SpeedTraders", "speedtraders", "ORDERS "+stock)
-        
-        bidArr = []
-        askArr = []
+def pullData(stock, m, d, y):
+	try:
+		fileLine = 'Quotes/'+stock+'.txt'
+		# API call URL
+		urlToVisit = 'http://ichart.yahoo.com/table.csv?s='+stock+'&a='+str(m-1)+'&b='+str(d)+'&c='+str(y)
+		sourceCode = urllib2.urlopen(urlToVisit).read()
+		splitSource = sourceCode.split('\n')
 
-        datas = fileLine.split(" ")
-        isBid = False
-        i = 0
-        for data in datas:
-            if not(data == "SECURITY_ORDERS_OUT BID" or data == stock):
-                if data == "BID":
-                    isBid = True
-                elif data == "ASK":
-                    isBid = False
-                elif isBid:
-                    bidArr.append(data)
-                elif not isBid:
-                    askArr.append(data)
-        askArr = askArr[1:]
-        bidArr = bidArr[::2]
-        askArr = askArr[::2]
+		# CSV formatting
+		for eachLine in splitSource:
+			splitLine = eachLine.split(',')
+			if 'Date' not in eachLine:
+				saveFile = open(fileLine, 'a')
+				lineToWrite = eachLine+'\n'
+				saveFile.write(lineToWrite)
 
-        print bidArr
-        print askArr
-        print fileLine
+		# Debugging statements
+		print 'Pulled', stock
+		print 'sleeping'
+		# Time b/w each pull
+		time.sleep(1)
 
-        # Debugging statements
-        print 'Pulled', stock
-        print 'sleeping'
-        # Time b/w each pull
-        time.sleep(1)
-        retAvg = (float(bidArr[0])+float(askArr[0]))/2
-        return retAvg
-
-    except Exception, e:
-        print 'main loop', str(e)
-
-
-##################################################################
-#         range openp highp lowp volume closep Call
-##################################################################
-def ThirtySecondPrice(stock):
-    priceList = []
-    for i in range(0,30):
-        x = pullData(stock)
-        priceList.append(x)
-    openp = priceList[0]
-    highp = max(priceList)
-    lowp = min(priceList)
-    closep = priceList[len(priceList)-1]
-    return (openp, highp, lowp, closep)
-
-
+	except Exception, e:
+		print 'main loop', str(e)
 
 ##################################################################
 #                         Scraper Call
@@ -183,6 +159,7 @@ def macdCalc(x, slow=26, fast=12):
 #       Grapher, params (Name of stock, SMA1 day, SMA2 day)
 ##################################################################
 def graphData(stock, SMA1, SMA2):
+	fig.clf()
 	try:
 		# -------Process Stock Data--------
 		stockFile = 'Quotes/'+stock+'.txt'
@@ -211,7 +188,6 @@ def graphData(stock, SMA1, SMA2):
 		label1 = str(SMA1)+' SMA'
 		label2 = str(SMA2)+' SMA'
 
-		fig = plt.figure(facecolor='#07000d')
 
 		#--------RSI GRAPH--------
 		ax0 = plt.subplot2grid((6,4), (0,0), rowspan=1, colspan=4, axisbg='#07000d')
@@ -361,13 +337,16 @@ def graphData(stock, SMA1, SMA2):
 
 		plt.suptitle(stock, color='w')
 		
-		plt.show()
+		#plt.show()
 
 	except Exception, e:
 		print 'failed main loop', str(e)
 
 #INSERT LOGIC TO DO PULLS VIA  pullData(stock, month, day, year) function
 #########################################################################
+fig = plt.figure(facecolor='#07000d')
 
-# Call the graph function on run
-graphData('TSLA', 12, 26)
+def animate(i):
+	graphData('TSLA', 12, 26)
+	ani = animation.FuncAnimation(fig, animate, interval = 1000,)
+	plt.show()

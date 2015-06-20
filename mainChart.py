@@ -9,10 +9,10 @@ import matplotlib.dates as mdates
 from matplotlib.finance import candlestick
 import socket
 import sys
-    
+
 def run(user, password, *commands):
     HOST, PORT = "codebb.cloudapp.net", 17429
-    
+
     data=user + " " + password + "\n" + "\n".join(commands) + "\nCLOSE_CONNECTION\n"
 
     try:
@@ -31,7 +31,7 @@ def run(user, password, *commands):
 
 def subscribe(user, password):
     HOST, PORT = "codebb.cloudapp.net", 17429
-    
+
     data=user + " " + password + "\nSUBSCRIBE\n"
 
     try:
@@ -57,7 +57,6 @@ stocksToPull = 'AAPL','GOOG','MSFT','CMG','TSLA','FB'
 def pullData(stock):
     try:
         fileLine = run("SpeedTraders", "speedtraders", "ORDERS "+stock)
-        
         bidArr = []
         askArr = []
 
@@ -149,7 +148,7 @@ def rsiCalc(prices, n=14):
 #                 SMA calculator (using numpy)
 ##################################################################
 def simpleMovingAvg(values, window):
-	# sma formula 
+	# sma formula
 	weights = np.repeat(1.0, window)/window
 	# smoother (convolve smooths)
 	smas = np.convolve(values, weights, 'valid')
@@ -164,7 +163,6 @@ def ema(values, window):
 	a = np.convolve(values, weights, mode='full')[:len(values)]
 	a[:window] = a[window]
 	return a
-	
 
 ##################################################################
 #                 MACD calculator (using numpy)
@@ -188,7 +186,7 @@ def graphData(stock, SMA1, SMA2):
 		stockFile = 'Quotes/'+stock+'.txt'
 		date, openp, highp, lowp, closep, volume, adjClose = np.loadtxt(stockFile, delimiter=',', unpack = True,
 			converters={0: mdates.strpdate2num('%Y-%m-%d')})
-		
+
 		x = 0
 		y = len(date)
 		candleArr = []
@@ -360,7 +358,7 @@ def graphData(stock, SMA1, SMA2):
 		plt.subplots_adjust(left=0.08, bottom=.07, right=0.95, top=0.93, wspace=.20, hspace=0.00)
 
 		plt.suptitle(stock, color='w')
-		
+
 		plt.show()
 
 	except Exception, e:
@@ -370,4 +368,4 @@ def graphData(stock, SMA1, SMA2):
 #########################################################################
 
 # Call the graph function on run
-graphData('TSLA', 12, 26)
+graphData('FB', 12, 26)

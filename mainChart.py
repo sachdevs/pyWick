@@ -9,7 +9,6 @@ import matplotlib.dates as mdates
 from matplotlib.finance import candlestick
 import sys
 
-stocksToPull = 'AAPL','GOOG','MSFT','CMG','TSLA','FB'
 
 ##################################################################
 #        Scrapes historical data from Yahoo Finance API
@@ -42,8 +41,8 @@ def pullData(stock, m, d, y):
 ##################################################################
 #                         Scraper Call
 ##################################################################
-for stock in stocksToPull:
- 	pullData(stock, 3, 18, 2014)
+argIn = sys.argv[1]
+pullData(argIn, 3, 18, 2014)
 
 ##################################################################
 #                 RSI calculator (using numpy)
@@ -298,4 +297,4 @@ def graphData(stock, SMA1, SMA2):
 #########################################################################
 
 # Call the graph function on run
-graphData('FB', 12, 26)
+graphData(argIn, 12, 26)

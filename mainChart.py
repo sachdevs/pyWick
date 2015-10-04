@@ -7,113 +7,43 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 import matplotlib.dates as mdates
 from matplotlib.finance import candlestick
-import socket
 import sys
-
-def run(user, password, *commands):
-    HOST, PORT = "codebb.cloudapp.net", 17429
-
-    data=user + " " + password + "\n" + "\n".join(commands) + "\nCLOSE_CONNECTION\n"
-
-    try:
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-        sock.connect((HOST, PORT))
-        sock.sendall(data)
-        sfile = sock.makefile()
-        rline = sfile.readline()
-        while rline:
-            print(rline.strip())
-            return rline.strip()
-            rline = sfile.readline()
-    finally:
-        sock.close()
-
-def subscribe(user, password):
-    HOST, PORT = "codebb.cloudapp.net", 17429
-
-    data=user + " " + password + "\nSUBSCRIBE\n"
-
-    try:
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-        sock.connect((HOST, PORT))
-        sock.sendall(data)
-        sfile = sock.makefile()
-        rline = sfile.readline()
-        while rline:
-            print(rline.strip())
-            rline = sfile.readline()
-    finally:
-        sock.close()
-
-plt.rcParams.update({'font.size': 11})
 
 stocksToPull = 'AAPL','GOOG','MSFT','CMG','TSLA','FB'
 
 ##################################################################
 #        Scrapes historical data from Yahoo Finance API
 ##################################################################
-def pullData(stock):
-    try:
-        fileLine = run("SpeedTraders", "speedtraders", "ORDERS "+stock)
-        bidArr = []
-        askArr = []
+def pullData(stock, m, d, y):
+	try:
+		fileLine = 'Quotes/'+stock+'.txt'
+		# API call URL
+		urlToVisit = 'http://ichart.yahoo.com/table.csv?s='+stock+'&a='+str(m-1)+'&b='+str(d)+'&c='+str(y)
+		sourceCode = urllib2.urlopen(urlToVisit).read()
+		splitSource = sourceCode.split('\n')
 
-        datas = fileLine.split(" ")
-        isBid = False
-        i = 0
-        for data in datas:
-            if not(data == "SECURITY_ORDERS_OUT BID" or data == stock):
-                if data == "BID":
-                    isBid = True
-                elif data == "ASK":
-                    isBid = False
-                elif isBid:
-                    bidArr.append(data)
-                elif not isBid:
-                    askArr.append(data)
-        askArr = askArr[1:]
-        bidArr = bidArr[::2]
-        askArr = askArr[::2]
+		# CSV formatting
+		for eachLine in splitSource:
+			splitLine = eachLine.split(',')
+			if 'Date' not in eachLine:
+				saveFile = open(fileLine, 'a')
+				lineToWrite = eachLine+'\n'
+				saveFile.write(lineToWrite)
 
-        print bidArr
-        print askArr
-        print fileLine
+		# Debugging statements
+		print 'Pulled', stock
+		print 'sleeping'
+		# Time b/w each pull
+		time.sleep(1)
 
-        # Debugging statements
-        print 'Pulled', stock
-        print 'sleeping'
-        # Time b/w each pull
-        time.sleep(1)
-        retAvg = (float(bidArr[0])+float(askArr[0]))/2
-        return retAvg
-
-    except Exception, e:
-        print 'main loop', str(e)
-
-
-##################################################################
-#         range openp highp lowp volume closep Call
-##################################################################
-def ThirtySecondPrice(stock):
-    priceList = []
-    for i in range(0,30):
-        x = pullData(stock)
-        priceList.append(x)
-    openp = priceList[0]
-    highp = max(priceList)
-    lowp = min(priceList)
-    closep = priceList[len(priceList)-1]
-    return (openp, highp, lowp, closep)
-
-
+	except Exception, e:
+		print 'main loop', str(e)
 
 ##################################################################
 #                         Scraper Call
 ##################################################################
-# for stock in stocksToPull:
-# 	pullData(stock, 3, 18, 2014)
+for stock in stocksToPull:
+ 	pullData(stock, 3, 18, 2014)
 
 ##################################################################
 #                 RSI calculator (using numpy)

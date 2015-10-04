@@ -4,6 +4,6 @@ To use: Install scipy stack (matplotlib, numpy)<br>
 ```
 $(sudo) pip install numpy
 $(sudo) pip install matplotlib
-$python mainChart.py
+$python mainChart.py TICKER_SYMBOL 
 ```
 On windows install anaconda (a python distribution that comes with the scipy stack) because pip will surely have issues.

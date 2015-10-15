@@ -130,8 +130,6 @@ def graphData(stock, SMA1, SMA2):
 		av1 = simpleMovingAvg(closep, SMA1)
 		av2 = simpleMovingAvg(closep, SMA2)
 
-		# starting point of sma (since the x day moving average cannot start until x days have first been completed)
-		#TODO ###### NEED TO MAKE DYNAMIC ################
 		startingPoint = len(date[SMA2-1:])
 
 		# legend label stuffs
@@ -166,11 +164,6 @@ def graphData(stock, SMA1, SMA2):
 
 		# Candlestick plot details
 		candlestick(ax1, candleArr[:startingPoint], width=1, colorup='#9eff15', colordown='#ff1717')
-		# uncomment this section and comment line above to switch b/w line graph and candlestick
-		# ax1.plot(date, openp)
-		# ax1.plot(date, closep)
-		# ax1.plot(date, highp)
-		# ax1.plot(date, lowp)
 
 		# plot the SMA on axis 1
 		ax1.plot(date[:startingPoint], av1[:startingPoint], '#5998ff', label= label1, linewidth=1.2)
@@ -193,25 +186,6 @@ def graphData(stock, SMA1, SMA2):
 		pylab.setp(textEd[0:5], color='w')
 
 		# -------VOLUME GRAPH--------
-
-		################################################################
-		# volumeMin = 0
-
-		# ax2 = plt.subplot2grid((4,4), (3,0), sharex=ax1, rowspan=1, colspan=4, axisbg='#07000d')
-		# ax2.plot(date, volume, '#00ffe8', linewidth=.8)
-		# ax2.fill_between(date, volumeMin, volume, facecolor='#00ffe8', alpha=.5)
-
-		# # Mostly styling
-		# ax2.axes.yaxis.set_ticklabels([])
-		# plt.ylabel('Volume')
-		# ax2.grid(True, color="w")
-		# ax2.yaxis.label.set_color('w')
-		# ax2.xaxis.label.set_color('w')
-		# ax2.spines['bottom'].set_color('#5998ff')
-		# ax2.spines['left'].set_color('#5998ff')
-		# ax2.spines['top'].set_color('#5998ff')
-		# ax2.spines['right'].set_color('#5998ff')
-		################################################################
 
 		ax1v = ax1.twinx()
 		ax1v.plot(date[:startingPoint], volume[:startingPoint], '#00ffe8', linewidth=.8)
